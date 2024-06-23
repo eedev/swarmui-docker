@@ -12,9 +12,10 @@ export ASPNETCORE_ENVIRONMENT="Production"
 export ASPNETCORE_URLS="http://*:7801"
 
 # Actual runner
-dotnet /app/bin/SwarmUI.dll "$@"
+cd /app
+dotnet ./bin/SwarmUI.dll "$@"
 
 # Exit code 42 means restart, anything else = don't.
 if [ $? == 42 ]; then
-    . /entrypoint.sh "$@"
+    . /docker-entrypoint.sh "$@"
 fi

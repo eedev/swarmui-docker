@@ -43,11 +43,11 @@ RUN --mount=type=cache,target=/var/cache/apt \
     # Install dependencies for controlnet preprocessors
     libglib2.0-0 libgl1
 
-COPY docker-entrypoint.sh /
-
 WORKDIR ${APP_ROOT}
 
 USER swarmui
 
 EXPOSE 7801
+
+COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh", "--launch_mode", "none", "--host", "0.0.0.0"]
