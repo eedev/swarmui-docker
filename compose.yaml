@@ -1,0 +1,23 @@
+services:
+  swarmui:
+    container_name: swarmui
+    image: eedev/swarmui-docker:latest
+    ports:
+      - "7801:7801"
+    volumes:
+      - "data:/app/Data"
+      - "backend:/app/dlbackend"
+      - "./models:/app/Models"
+      - "./output:/app/Output"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+
+volumes:
+  data:
+  backend:
