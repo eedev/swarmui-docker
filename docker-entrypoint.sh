@@ -2,7 +2,7 @@
 
 # Ensure correct local path.
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-cd $SCRIPT_DIR
+cd "$SCRIPT_DIR"
 
 # Add dotnet non-admin-install to path
 export PATH="$SCRIPT_DIR/.dotnet:~/.dotnet:$PATH"
@@ -10,8 +10,7 @@ export PATH="$SCRIPT_DIR/.dotnet:~/.dotnet:$PATH"
 # Default env configuration, gets overwritten by the C# code's settings handler
 export ASPNETCORE_ENVIRONMENT="Production"
 export ASPNETCORE_URLS="http://*:7801"
-
-# Actual runner
+# Actual runner.
 cd $HOME
 dotnet ./bin/SwarmUI.dll "$@"
 
