@@ -47,6 +47,9 @@ WORKDIR ${APP_ROOT}
 
 USER swarmui
 
+RUN chmod +x ${APP_ROOT}/launchtools/comfy-install-linux.sh && \
+    ${APP_ROOT}/launchtools/comfy-install-linux.sh
+
 EXPOSE 7801
 
 COPY docker-entrypoint.sh /

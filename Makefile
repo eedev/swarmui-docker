@@ -1,5 +1,5 @@
-SWARMUI_VER ?= 0.9.0-Beta
-SWARMUI_VER_MINOR ?= $(shell echo "${SWARMUI_VER}" | grep -oE '^[0-9]+\.[0-9]+')
+SWARMUI_VER ?= 0.9.0.1-Beta
+SWARMUI_VER_MINOR ?= $(shell echo "${SWARMUI_VER}" | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+')
 
 REPO = eedev/swarmui-docker
 NAME = swarmui
