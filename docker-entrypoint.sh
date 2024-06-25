@@ -12,7 +12,7 @@ export ASPNETCORE_ENVIRONMENT="Production"
 export ASPNETCORE_URLS="http://*:7801"
 
 # Actual runner
-cd /app
+cd $HOME
 dotnet ./bin/SwarmUI.dll "$@"
 
 # Exit code 42 means restart, anything else = don't.
