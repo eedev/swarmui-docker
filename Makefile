@@ -1,10 +1,10 @@
-SWARMUI_VER ?= 0.9.0.1-Beta
-SWARMUI_VER_MINOR ?= $(shell echo "${SWARMUI_VER}" | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+')
-
-REPO = eedev/swarmui-docker
-NAME = swarmui
-
+PROJECT_NAME = swarmui
+DOCKER_REPOSITORY = eedev/swarmui-docker
+TAG=latest
 PLATFORM ?= linux/amd64
+
+COMMIT_HASH=$(shell curl -s https://api.github.com/repos/mcmonkeyprojects/SwarmUI/commits/master | jq -r '.sha')
+APP_ROOT ?= "/app"
 
 ifeq ($(SWARMUI_USER_ID),)
     SWARMUI_USER_ID := 1000
@@ -14,86 +14,65 @@ ifeq ($(SWARMUI_GROUP_ID),)
     SWARMUI_GROUP_ID := 1000
 endif
 
-ifeq ($(TAG),)
-    ifneq ($(SWARMUI_DEV),)
-    	TAG ?= $(SWARMUI_VER_MINOR)-dev
-    else
-        TAG ?= $(SWARMUI_VER_MINOR)
-    endif
-endif
-
-ifneq ($(SWARMUI_DEV),)
-    NAME := $(NAME)-dev
-endif
-
-ifneq ($(STABILITY_TAG),)
-    ifneq ($(TAG),latest)
-        override TAG := $(TAG)-$(STABILITY_TAG)
-    endif
-endif
-
-.PHONY: build buildx-build buildx-push buildx-build-amd64 test push shell run start stop logs clean release
+.PHONY: build buildx-build buildx-push buildx-build-amd64 push shell run start stop logs clean release
 
 default: build
 
 build:
-	docker build -t $(REPO):$(TAG) \
-		--build-arg SWARMUI_VER=$(SWARMUI_VER) \
-		--build-arg SWARMUI_DEV=$(SWARMUI_DEV) \
+	docker build -t $(DOCKER_REPOSITORY):$(TAG) \
+		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
 		--build-arg SWARMUI_USER_ID=$(SWARMUI_USER_ID) \
 		--build-arg SWARMUI_GROUP_ID=$(SWARMUI_GROUP_ID) \
+		--build-arg APP_ROOT=$(APP_ROOT) \
 		./
 
 # --load doesn't work with multiple platforms https://github.com/docker/buildx/issues/59
 # we need to save cache to run tests first.
 buildx-build-amd64:
-	docker buildx build --platform linux/amd64 -t $(REPO):$(TAG) \
-		--build-arg SWARMUI_VER=$(SWARMUI_VER) \
-		--build-arg SWARMUI_DEV=$(SWARMUI_DEV) \
+	docker buildx build --platform linux/amd64 -t $(DOCKER_REPOSITORY):$(TAG) \
+		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
 		--build-arg SWARMUI_USER_ID=$(SWARMUI_USER_ID) \
 		--build-arg SWARMUI_GROUP_ID=$(SWARMUI_GROUP_ID) \
+		--build-arg APP_ROOT=$(APP_ROOT) \
 		--load \
 		./
 
 buildx-build:
-	docker buildx build --platform $(PLATFORM) -t $(REPO):$(TAG) \
-		--build-arg SWARMUI_VER=$(SWARMUI_VER) \
-		--build-arg SWARMUI_DEV=$(SWARMUI_DEV) \
+	docker buildx build --platform $(PLATFORM) -t $(DOCKER_REPOSITORY):$(TAG) \
+		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
 		--build-arg SWARMUI_USER_ID=$(SWARMUI_USER_ID) \
 		--build-arg SWARMUI_GROUP_ID=$(SWARMUI_GROUP_ID) \
+		--build-arg APP_ROOT=$(APP_ROOT) \
 		./
 
 buildx-push:
-	docker buildx build --platform $(PLATFORM) --push -t $(REPO):$(TAG) \
-		--build-arg SWARMUI_VER=$(SWARMUI_VER) \
-		--build-arg SWARMUI_DEV=$(SWARMUI_DEV) \
+	docker buildx build --platform $(PLATFORM) --push -t $(DOCKER_REPOSITORY):$(TAG) \
+		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
 		--build-arg SWARMUI_USER_ID=$(SWARMUI_USER_ID) \
 		--build-arg SWARMUI_GROUP_ID=$(SWARMUI_GROUP_ID) \
+		--build-arg APP_ROOT=$(APP_ROOT) \
 		./
 
-test:
-	cd ./tests && IMAGE=$(REPO):$(TAG) ./run.sh
-
 push:
-	docker push $(REPO):$(TAG)
+	docker push $(DOCKER_REPOSITORY):$(TAG)
 
 shell:
-	docker run --rm --name $(NAME) -i -t $(PORTS) $(VOLUMES) $(ENV) $(REPO):$(TAG) /bin/bash
+	docker run --rm --name $(PROJECT_NAME) -i -t $(PORTS) $(VOLUMES) $(ENV) $(DOCKER_REPOSITORY):$(TAG) /bin/bash
 
 run:
-	docker run --rm --name $(NAME) $(PORTS) $(VOLUMES) $(ENV) $(REPO):$(TAG) $(CMD)
+	docker run --rm --name $(PROJECT_NAME) $(PORTS) $(VOLUMES) $(ENV) $(DOCKER_REPOSITORY):$(TAG) $(CMD)
 
 start:
-	docker run -d --name $(NAME) $(PORTS) $(VOLUMES) $(ENV) $(REPO):$(TAG)
+	docker run -d --name $(PROJECT_NAME) $(PORTS) $(VOLUMES) $(ENV) $(DOCKER_REPOSITORY):$(TAG)
 
 stop:
-	docker stop $(NAME)
+	docker stop $(PROJECT_NAME)
 
 logs:
-	docker logs $(NAME)
+	docker logs $(PROJECT_NAME)
 
 clean:
-	-docker rm -f $(NAME)
-	-IMAGE=$(REPO):$(TAG) docker-compose -f compose.yaml down
+	-docker rm -f $(PROJECT_NAME)
+	-IMAGE=$(DOCKER_REPOSITORY):$(TAG) docker compose -f compose.yaml down
 
 release: build push

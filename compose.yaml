@@ -6,7 +6,7 @@ services:
       - "7801:7801"
     volumes:
       - "data:/app/Data"
-      - "backend:/app/dlbackend"
+#      - "backend:/app/dlbackend"
       - "./models:/app/Models"
       - "./output:/app/Output"
     deploy:
@@ -20,4 +20,4 @@ services:
 
 volumes:
   data:
-  backend:
+#  backend:

@@ -12,7 +12,9 @@ RUN --mount=type=cache,target=/var/cache/apt \
 
 WORKDIR ${APP_ROOT}
 
-RUN git clone $REPOSITORY .
+ARG COMMIT_HASH
+RUN git clone ${REPOSITORY} . && \
+    git checkout ${COMMIT_HASH}
 
 RUN dotnet build src/SwarmUI.csproj --configuration Release -o ./bin
 
@@ -21,7 +23,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim
 
 ARG SWARMUI_USER_ID=1000
 ARG SWARMUI_GROUP_ID=1000
-ARG SWARMUI_DEV
 ARG APP_ROOT="/app"
 
 ENV NVIDIA_VISIBLE_DEVICES=all
