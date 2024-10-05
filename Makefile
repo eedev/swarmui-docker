@@ -5,6 +5,7 @@ PLATFORM ?= linux/amd64
 
 COMMIT_HASH=$(shell curl -s https://api.github.com/repos/mcmonkeyprojects/SwarmUI/commits/master | jq -r '.sha')
 APP_ROOT ?= "/app"
+GPU_TYPE = "nv"
 
 ifeq ($(SWARMUI_USER_ID),)
     SWARMUI_USER_ID := 1000
@@ -23,6 +24,7 @@ build:
 		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
 		--build-arg SWARMUI_USER_ID=$(SWARMUI_USER_ID) \
 		--build-arg SWARMUI_GROUP_ID=$(SWARMUI_GROUP_ID) \
+		--build-arg GPU_TYPE=$(GPU_TYPE) \
 		--build-arg APP_ROOT=$(APP_ROOT) \
 		./
 
@@ -33,6 +35,7 @@ buildx-build-amd64:
 		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
 		--build-arg SWARMUI_USER_ID=$(SWARMUI_USER_ID) \
 		--build-arg SWARMUI_GROUP_ID=$(SWARMUI_GROUP_ID) \
+		--build-arg GPU_TYPE=$(GPU_TYPE) \
 		--build-arg APP_ROOT=$(APP_ROOT) \
 		--load \
 		./
@@ -42,6 +45,7 @@ buildx-build:
 		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
 		--build-arg SWARMUI_USER_ID=$(SWARMUI_USER_ID) \
 		--build-arg SWARMUI_GROUP_ID=$(SWARMUI_GROUP_ID) \
+		--build-arg GPU_TYPE=$(GPU_TYPE) \
 		--build-arg APP_ROOT=$(APP_ROOT) \
 		./
 
@@ -50,6 +54,7 @@ buildx-push:
 		--build-arg COMMIT_HASH=$(COMMIT_HASH) \
 		--build-arg SWARMUI_USER_ID=$(SWARMUI_USER_ID) \
 		--build-arg SWARMUI_GROUP_ID=$(SWARMUI_GROUP_ID) \
+		--build-arg GPU_TYPE=$(GPU_TYPE) \
 		--build-arg APP_ROOT=$(APP_ROOT) \
 		./
 

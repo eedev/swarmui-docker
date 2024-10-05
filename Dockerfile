@@ -24,6 +24,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim
 ARG SWARMUI_USER_ID=1000
 ARG SWARMUI_GROUP_ID=1000
 ARG APP_ROOT="/app"
+ARG GPU_TYPE
 
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV CLI_ARGS=""
@@ -33,7 +34,8 @@ RUN addgroup --gid $SWARMUI_GROUP_ID swarmui && \
 
 COPY --from=build ${APP_ROOT} "${APP_ROOT}/"
 
-RUN chown -R swarmui:swarmui ${APP_ROOT}
+RUN mkdir -p "${APP_ROOT}/Data" && \
+    chown -R swarmui:swarmui ${APP_ROOT}
 ENV HOME=${APP_ROOT}
 
 RUN --mount=type=cache,target=/var/cache/apt \
@@ -48,7 +50,7 @@ WORKDIR ${APP_ROOT}
 USER swarmui
 
 RUN chmod +x ${APP_ROOT}/launchtools/comfy-install-linux.sh && \
-    ${APP_ROOT}/launchtools/comfy-install-linux.sh
+    ${APP_ROOT}/launchtools/comfy-install-linux.sh ${GPU_TYPE}
 
 EXPOSE 7801
 
